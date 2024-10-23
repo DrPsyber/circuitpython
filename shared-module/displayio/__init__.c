@@ -12,6 +12,7 @@
 #include "shared/runtime/interrupt_char.h"
 #include "py/runtime.h"
 #include "shared-bindings/board/__init__.h"
+#include "shared-bindings/busio/I2C.h"
 #include "shared-bindings/displayio/Bitmap.h"
 #include "shared-bindings/displayio/Group.h"
 #include "shared-bindings/displayio/Palette.h"
@@ -34,6 +35,11 @@
 #include "shared-module/sharpdisplay/SharpMemoryFramebuffer.h"
 #endif
 
+#if CIRCUITPY_AURORA_EPAPER
+#include "shared-bindings/aurora_epaper/aurora_framebuffer.h"
+#include "shared-module/aurora_epaper/aurora_framebuffer.h"
+#endif
+
 #ifdef BOARD_USE_INTERNAL_SPI
 #include "supervisor/spi_flash_api.h"
 #endif
@@ -54,7 +60,7 @@ displayio_buffer_transform_t null_transform = {
     .transpose_xy = false
 };
 
-#if CIRCUITPY_RGBMATRIX || CIRCUITPY_IS31FL3741 || CIRCUITPY_VIDEOCORE
+#if CIRCUITPY_RGBMATRIX || CIRCUITPY_IS31FL3741 || CIRCUITPY_VIDEOCORE || CIRCUITPY_PICODVI
 static bool any_display_uses_this_framebuffer(mp_obj_base_t *obj) {
     for (uint8_t i = 0; i < CIRCUITPY_DISPLAY_LIMIT; i++) {
         if (displays[i].display_base.type == &framebufferio_framebufferdisplay_type) {
@@ -231,6 +237,8 @@ void reset_displays(void) {
                         display_buses[j].i2cdisplay_bus.bus = &i2c->inline_bus;
                     }
                 }
+                // Mark the old i2c object so it is considered deinit.
+                common_hal_busio_i2c_mark_deinit(original_i2c);
             }
         #endif
         #if CIRCUITPY_RGBMATRIX
@@ -293,6 +301,17 @@ void reset_displays(void) {
                 common_hal_picodvi_framebuffer_deinit(vc);
             }
         #endif
+        #if CIRCUITPY_AURORA_EPAPER
+        } else if (display_bus_type == &aurora_framebuffer_type) {
+            #if CIRCUITPY_BOARD_SPI
+            aurora_epaper_framebuffer_obj_t *aurora = &display_buses[i].aurora_epaper;
+            if (common_hal_board_is_spi(aurora->bus)) {
+                common_hal_aurora_epaper_framebuffer_set_free_bus(false);
+            }
+            #endif
+            // Set to None, gets deinit'd up by display_base
+            display_buses[i].bus_base.type = &mp_type_NoneType;
+        #endif
         } else {
             // Not an active display bus.
             continue;
@@ -341,6 +360,11 @@ void displayio_gc_collect(void) {
         #if CIRCUITPY_SHARPDISPLAY
         if (display_bus_type == &sharpdisplay_framebuffer_type) {
             common_hal_sharpdisplay_framebuffer_collect_ptrs(&display_buses[i].sharpdisplay);
+        }
+        #endif
+        #if CIRCUITPY_AURORA_EPAPER
+        if (display_bus_type == &aurora_framebuffer_type) {
+            common_hal_aurora_epaper_framebuffer_collect_ptrs(&display_buses[i].aurora_epaper);
         }
         #endif
     }

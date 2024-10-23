@@ -105,7 +105,10 @@ ifeq ($(CIRCUITPY_AESIO),1)
 SRC_PATTERNS += aesio/%
 endif
 ifeq ($(CIRCUITPY_ALARM),1)
-SRC_PATTERNS += alarm/%
+SRC_PATTERNS += alarm/__init__.c alarm/SleepMemory.c alarm/pin/% alarm/time/%
+endif
+ifeq ($(CIRCUITPY_ALARM_TOUCH),1)
+SRC_PATTERNS += alarm/touch/%
 endif
 ifeq ($(CIRCUITPY_ANALOGBUFIO),1)
 SRC_PATTERNS += analogbufio/%
@@ -128,11 +131,17 @@ endif
 ifeq ($(CIRCUITPY_AUDIOCORE),1)
 SRC_PATTERNS += audiocore/%
 endif
+ifeq ($(CIRCUITPY_AUDIODELAYS),1)
+SRC_PATTERNS += audiodelays/%
+endif
 ifeq ($(CIRCUITPY_AUDIOMIXER),1)
 SRC_PATTERNS += audiomixer/%
 endif
 ifeq ($(CIRCUITPY_AUDIOMP3),1)
 SRC_PATTERNS += audiomp3/%
+endif
+ifeq ($(CIRCUITPY_AURORA_EPAPER),1)
+SRC_PATTERNS += aurora_epaper/%
 endif
 ifeq ($(CIRCUITPY_BITBANGIO),1)
 SRC_PATTERNS += bitbangio/%
@@ -611,6 +620,8 @@ SRC_SHARED_MODULE_ALL = \
 	audiocore/RawSample.c \
 	audiocore/WaveFile.c \
 	audiocore/__init__.c \
+	audiodelays/Echo.c \
+	audiodelays/__init__.c \
 	audioio/__init__.c \
 	audiomixer/Mixer.c \
 	audiomixer/MixerVoice.c \
@@ -618,6 +629,8 @@ SRC_SHARED_MODULE_ALL = \
 	audiomp3/MP3Decoder.c \
 	audiomp3/__init__.c \
 	audiopwmio/__init__.c \
+	aurora_epaper/aurora_framebuffer.c \
+	aurora_epaper/__init__.c \
 	bitbangio/I2C.c \
 	bitbangio/SPI.c \
 	bitbangio/__init__.c \

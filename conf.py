@@ -110,6 +110,7 @@ autoapi_template_dir = 'docs/autoapi/templates'
 autoapi_python_class_content = "both"
 autoapi_python_use_implicit_namespaces = True
 autoapi_root = "shared-bindings"
+autoapi_file_patterns = ["*.pyi"]
 
 # Suppress cache warnings to prevent "unpickable" [sic] warning
 # about autoapi_prepare_jinja_env() from sphinx >= 7.3.0.
@@ -180,6 +181,7 @@ exclude_patterns = ["**/build*",
                     ".venv",
                     ".direnv",
                     ".devcontainer/Readme.md",
+                    "circuitpython-stubs",
                     "data",
                     "docs/autoapi",
                     "docs/README.md",
@@ -275,7 +277,6 @@ rst_epilog = """
 
 import sphinx_rtd_theme
 html_theme = 'sphinx_rtd_theme'
-html_theme_path = [sphinx_rtd_theme.get_html_theme_path(), '.']
 
 # Theme options are theme-specific and customize the look and feel of a theme
 # further.  For a list of options available for each theme, see the

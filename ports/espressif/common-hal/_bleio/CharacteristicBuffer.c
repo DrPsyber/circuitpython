@@ -26,6 +26,7 @@ void bleio_characteristic_buffer_extend(bleio_characteristic_buffer_obj_t *self,
         for (uint16_t i = 0; i < len; i++) {
             if (data[i] == mp_interrupt_char) {
                 mp_sched_keyboard_interrupt();
+                ringbuf_clear(&self->ringbuf);
             } else {
                 ringbuf_put(&self->ringbuf, data[i]);
             }
@@ -70,7 +71,6 @@ uint32_t common_hal_bleio_characteristic_buffer_read(bleio_characteristic_buffer
     }
 
     uint32_t num_bytes_read = ringbuf_get_n(&self->ringbuf, data, len);
-
     return num_bytes_read;
 }
 
